@@ -546,14 +546,14 @@
 <div class="contact-inner">
 <h2><span data-en="Ready to open doors?" data-he="מוכנים לפתוח דלתות?">מוכנים לפתוח דלתות?</span></h2>
 <p><span data-en="Send us a short message. We will get back to you for an initial clarification call, free of charge." data-he="שלחו לנו הודעה קצרה, נחזור אליכם לשיחת ברור ראשונית, ללא עלות.">שלחו לנו הודעה קצרה, נחזור אליכם לשיחת ברור ראשונית, ללא עלות.</span></p>
-<div class="contact-form">
+<form class="contact-form" id="contactForm" action="https://formspree.io/f/moeaelrw" method="POST">
 <div class="contact-row">
-<input data-ph-en="Full name and company name" data-ph-he="שם מלא ושם חברה" placeholder="שם מלא ושם חברה" type="text"/>
-<input data-ph-en="Phone" data-ph-he="טלפון" placeholder="טלפון" type="tel"/>
+<input data-ph-en="Full name and company name" data-ph-he="שם מלא ושם חברה" placeholder="שם מלא ושם חברה" type="text" name="name" required/>
+<input data-ph-en="Phone" data-ph-he="טלפון" placeholder="טלפון" type="tel" name="phone" required/>
 </div>
-<textarea data-ph-en="What field do you operate in, and what do you need?" data-ph-he="באיזה תחום אתם פועלים ומה הצורך?" placeholder="באיזה תחום אתם פועלים ומה הצורך?"></textarea>
-<button class="btn-submit" onclick="alert(currentLang === 'en' ? 'Thank you! We will get back to you soon.' : 'תודה! נחזור אליכם בקרוב.')"><span data-en="Send message →" data-he="שלח הודעה →">שלח הודעה →</span></button>
-</div>
+<textarea data-ph-en="What field do you operate in, and what do you need?" data-ph-he="באיזה תחום אתם פועלים ומה הצורך?" placeholder="באיזה תחום אתם פועלים ומה הצורך?" name="message" required></textarea>
+<button class="btn-submit" type="submit"><span data-en="Send message →" data-he="שלח הודעה →">שלח הודעה →</span></button>
+</form>
 </div>
 </section>
 <!-- FOOTER -->
@@ -598,6 +598,34 @@
         btn.classList.toggle('active', btn.getAttribute('data-lang-btn') === currentLang);
       });
     }
-    document.addEventListener('DOMContentLoaded', function() { setLanguage(currentLang); });
+    document.addEventListener('DOMContentLoaded', function() {
+      setLanguage(currentLang);
+      var contactForm = document.getElementById('contactForm');
+      if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var submitBtn = contactForm.querySelector('.btn-submit');
+          var originalText = submitBtn.innerHTML;
+          submitBtn.disabled = true;
+          fetch(contactForm.action, {
+            method: 'POST',
+            body: new FormData(contactForm),
+            headers: { 'Accept': 'application/json' }
+          }).then(function(response) {
+            if (response.ok) {
+              alert(currentLang === 'en' ? 'Thank you! We will get back to you soon.' : 'תודה! נחזור אליכם בקרוב.');
+              contactForm.reset();
+            } else {
+              alert(currentLang === 'en' ? 'Something went wrong, please try again or email us directly.' : 'משהו השתבש, נסו שוב או שלחו לנו מייל ישירות.');
+            }
+          }).catch(function() {
+            alert(currentLang === 'en' ? 'Something went wrong, please try again or email us directly.' : 'משהו השתבש, נסו שוב או שלחו לנו מייל ישירות.');
+          }).finally(function() {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+          });
+        });
+      }
+    });
 </script></body>
 </html>
